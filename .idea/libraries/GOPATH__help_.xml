@@ -1,0 +1,40 @@
+<component name="libraryTable">
+  <library name="GOPATH &lt;help&gt;">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../hellobeego" />
+      <root url="file://$PROJECT_DIR$/../autocode" />
+      <root url="file://$PROJECT_DIR$/../pf" />
+      <root url="file://$PROJECT_DIR$/../pfscaf" />
+      <root url="file://$PROJECT_DIR$/../autogencode" />
+      <root url="file://$PROJECT_DIR$/../fk" />
+      <root url="file://$PROJECT_DIR$/../hellobeego2" />
+      <root url="file://$PROJECT_DIR$/../helper" />
+      <root url="file://$PROJECT_DIR$/../hellobeego0815" />
+      <root url="file://$PROJECT_DIR$/../30min_guides" />
+      <root url="file://$PROJECT_DIR$/../ad-core" />
+      <root url="file://$PROJECT_DIR$/../ad" />
+      <root url="file://$PROJECT_DIR$/../test" />
+      <root url="file://$PROJECT_DIR$/../github.com" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../hellobeego" />
+      <root url="file://$PROJECT_DIR$/../autocode" />
+      <root url="file://$PROJECT_DIR$/../pf" />
+      <root url="file://$PROJECT_DIR$/../pfscaf" />
+      <root url="file://$PROJECT_DIR$/../autogencode" />
+      <root url="file://$PROJECT_DIR$/../fk" />
+      <root url="file://$PROJECT_DIR$/../hellobeego2" />
+      <root url="file://$PROJECT_DIR$/../helper" />
+      <root url="file://$PROJECT_DIR$/../hellobeego0815" />
+      <root url="file://$PROJECT_DIR$/../30min_guides" />
+      <root url="file://$PROJECT_DIR$/../ad-core" />
+      <root url="file://$PROJECT_DIR$/../ad" />
+      <root url="file://$PROJECT_DIR$/../test" />
+      <root url="file://$PROJECT_DIR$/../github.com" />
+    </SOURCES>
+    <excluded>
+      <root url="file://$PROJECT_DIR$" />
+    </excluded>
+  </library>
+</component>
