@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"help/lib"
 
+	"fmt"
 )
 
 
@@ -18,8 +19,8 @@ func startHttpServer() {
 	http.HandleFunc("/login", lib.Login)
 	//签到
 	http.HandleFunc("/sign", lib.Sign)
-	//
-	//http.HandleFunc("/collection", lib.Collection)
+	//签到记录
+	http.HandleFunc("/signlist", lib.Signlist)
 	//康复对象
 	http.HandleFunc("/people", lib.People)
     //康复采集
@@ -30,11 +31,23 @@ func startHttpServer() {
 	http.HandleFunc("/mypeople", lib.MyPeople)
 	//意见反馈
 	http.HandleFunc("/feedback",lib.FeedBack)
+	//explore
+	http.HandleFunc("/explore",lib.Explore)
+	//hash
+	http.HandleFunc("/hash",lib.Hash)
+	//update
+	http.HandleFunc("/update",lib.Update)
+	//delete
+	http.HandleFunc("/delete",lib.Delete)
+	//sign
+	http.HandleFunc("/signal",lib.Signal)
 	//init listener
-	err := http.ListenAndServe(":82", nil)
+	http.Handle("/img/", http.StripPrefix("/img", http.FileServer(http.Dir("/usr/img"))))
+	err := http.ListenAndServe(":80", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
+	fmt.Println("server start success...")
 }
 
 

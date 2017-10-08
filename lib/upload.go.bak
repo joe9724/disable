@@ -1,0 +1,195 @@
+package lib
+
+import (
+	"net/http"
+
+	//"log"
+	"io"
+	"fmt"
+	"os"
+	"help/dao"
+	"time"
+	"path"
+
+
+	"math/rand"
+)
+
+func  GetRandomString(l int) string {
+	str := "0123456789abcdefghijklmnopqrstuvwxyz"
+	bytes := []byte(str)
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < l; i++ {
+		result = append(result, bytes[r.Intn(len(bytes))])
+	}
+	return string(result)
+}
+
+//采集
+func Upload(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("client:", r.RemoteAddr, "method:", r.Method)
+	//db := dao.GetConn()
+	//defer db.Close()
+	r.ParseForm()
+	r.ParseMultipartForm(32 << 20) //最大内存为32M
+
+	//读取参数
+    fmt.Println("start print args...")
+	dispeopleId := r.PostFormValue("dispeopleId")
+	fmt.Println("dispeopleId is",dispeopleId)
+	idcardNo := r.PostFormValue("idcardNo")
+	fmt.Println("idcardNo is",idcardNo)
+	discardNo := r.PostFormValue("discardNo")
+	fmt.Println("discardNo is",discardNo)
+	serviceId := r.PostFormValue("serviceId")
+	fmt.Println("serviceId is",serviceId)
+	agencyId := r.PostFormValue("agencyId")
+	fmt.Println("agencyId is",agencyId)
+	accessRecord := r.PostFormValue("accessRecord")
+	fmt.Println("accessRecord is",accessRecord)
+	latitude := r.PostFormValue("latitude")
+	fmt.Println("latitude is",latitude)
+	longitude := r.PostFormValue("longitude")
+	fmt.Println("longitude is",longitude)
+	location := r.PostFormValue("location")
+	fmt.Println("location is",location)
+	livePhoto := r.PostFormValue("livePhoto")
+	fmt.Println("livePhoto is",livePhoto)
+	recordPhoto := r.PostFormValue("recordPhoto")
+	fmt.Println("recordPhoto is",recordPhoto)
+	name := r.PostFormValue("name")
+	fmt.Println("name is",name)
+	gender := r.PostFormValue("gender")
+	fmt.Println("gender is",gender)
+	phone := r.PostFormValue("phone")
+	fmt.Println("phone is",phone)
+	level := r.PostFormValue("level")
+	fmt.Println("level is",level)
+	disableModeId := r.PostFormValue("disableModeId")
+	fmt.Println("disableModeId is",disableModeId)
+	birth := r.PostFormValue("birth")
+	fmt.Println("birth is",birth)
+	pickerId :=r.PostFormValue("pickerId")
+	fmt.Println("pickerId is",pickerId)
+	//log.Println("userId=", DispeopleId, "cityId=", AccessRecord)
+
+	mp := r.MultipartForm
+	if mp == nil {
+		fmt.Println("111")
+		//log.Println("not MultipartForm.")
+		//w.Write(([]byte)("不是MultipartForm格式"))
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Server", "NanjingYouzi")
+		defer func() {
+			io.WriteString(w,"notMultipartForm")
+			//fmt.Print(string(data))
+			//w.Write(data)
+		}()
+		return
+	}
+
+	fileHeaders, findFile := mp.File["file"]
+	if !findFile || len(fileHeaders) == 0 {
+		fmt.Println("222")
+		//log.Println("file count == 0.")
+		//w.Write(([]byte)("没有上传文件"))
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Server", "NanjingYouzi")
+		defer func() {
+			io.WriteString(w,"noUploadfile")
+			//fmt.Print(string(data))
+			//w.Write(data)
+		}()
+		return
+	}
+
+	//s :=time.Now().UnixNano()
+	var i int = 0
+	for _, v := range fileHeaders {
+		fmt.Println("333")
+		fileName := v.Filename
+		file, err := v.Open()
+		checkErr(err)
+		defer file.Close()
+
+		var filenameWithSuffix string
+		filenameWithSuffix = path.Base(fileName) //获取文件名带后缀
+		fmt.Println("filenameWithSuffix =", filenameWithSuffix)
+		var fileSuffix string
+		fileSuffix = path.Ext(filenameWithSuffix) //获取文件后缀
+		//rnd:=rand.Intn(100)
+		var p string
+		if i==0{
+			temp := GetRandomString(15)+fileSuffix
+			//p = "D:/usr/gopath/src/help/"+ temp
+			p="/usr/img/"+temp
+			livePhoto = temp
+		}else{
+			temp := GetRandomString(16)+fileSuffix
+			//p = "D:/usr/gopath/src/help/"+ temp
+			p="/usr/img/"+temp
+			recordPhoto = temp
+		}
+		outputFilePath := p
+		writer, err := os.OpenFile(outputFilePath, os.O_WRONLY|os.O_CREATE, 0666)
+		checkErr(err)
+		io.Copy(writer, file)
+		i++
+	}
+
+	//insert mysql
+	db := dao.GetConn()
+	defer db.Close()
+	//fmt.Println(_lat)
+	//fmt.Println(r.PostFormValue("workerId"))
+
+
+		_, err := db.Exec(
+			"INSERT INTO collection (dispeopleId,idcardNo,discardNo,serviceId,agencyId,accessRecord,latitude,longitude,location,livePhoto,recordPhoto,name,gender,phone,level,birth,pickerId,disableModeId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+			dispeopleId,idcardNo,discardNo,serviceId,agencyId,accessRecord,latitude,longitude,location,livePhoto,recordPhoto,name,gender,phone,level,birth,pickerId,disableModeId)
+		if err != nil {
+			//log.Fatal("err post data2: ", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Server", "NanjingYouzi")
+			defer func() {
+				fmt.Println("444")
+				io.WriteString(w,"error")
+				//fmt.Print(string(data))
+				//w.Write(data)
+			}()
+			return
+		}
+
+
+
+	//同时更新people表的采集时间
+	fmt.Println("UPDATE  people set pickTime='"+time.Now().Format("2006-01-02 15:04:05")+"'where idCard="+idcardNo)
+	_, err2 := db.Exec("UPDATE  people set pickTime='"+time.Now().Format("2006-01-02 15:04:05")+"'where idCard='"+idcardNo+"'")
+	if err2!=nil{
+		//log.Fatal("err post data1: ", err)
+		fmt.Println("555")
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Server", "NanjingYouzi")
+		defer func() {
+			io.WriteString(w,"error")
+			//fmt.Print(string(data))
+			//w.Write(data)
+		}()
+		return
+	}
+	//data, err := json.Marshal(Arr)
+	fmt.Println("666")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Server", "NanjingYouzi")
+	defer func() {
+
+		io.WriteString(w,"ok")
+		//fmt.Print(string(data))
+		//w.Write(data)
+	}()
+
+	//msg := fmt.Sprintf("成功上传了%d个文件", len(fileHeaders))
+	//w.Write(([]byte)(msg))
+
+}
