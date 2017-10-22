@@ -20,6 +20,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20) //最大内存为32M
 
 	//读取参数
+
 	id := r.PostFormValue("id")
 	fmt.Println("id is",id)
 	idCardNo := r.PostFormValue("idCardNo")
@@ -34,7 +35,32 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("livePhoto is",livePhoto)
 	recordPhoto := r.PostFormValue("recordPhoto")
 	fmt.Println("recordPhoto is",recordPhoto)
+	//先判断是否超过了6个小时
+	db1 := dao.GetConn()
+	defer db1.Close()
+	var  Diff int
+	err := db1.QueryRow("SELECT TIMESTAMPDIFF(HOUR,accessTime,now()) as diff from collection where id =?",id).Scan(&Diff)
+	if err!=nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Server", "NanjingYouzi")
+		defer func() {
+			io.WriteString(w,"error")
+			//fmt.Print(string(data))
+			//w.Write(data)
+		}()
+		return
+	}
 
+	if Diff>=6 ||Diff<=-6 {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Server", "NanjingYouzi")
+		defer func() {
+			io.WriteString(w,"timeout")
+			//fmt.Print(string(data))
+			//w.Write(data)
+		}()
+		return
+	}
 
 	//log.Println("userId=", DispeopleId, "cityId=", AccessRecord)
 

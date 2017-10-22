@@ -41,6 +41,12 @@ func startHttpServer() {
 	http.HandleFunc("/delete",lib.Delete)
 	//sign
 	http.HandleFunc("/signal",lib.Signal)
+	//康复记录
+	http.HandleFunc("/record",lib.Record)
+	//残疾人详情
+	http.HandleFunc("/peopleDetail",lib.PeopleDetail)
+	//修改密码
+	http.HandleFunc("/editpass",lib.EditPass)
 	//init listener
 	http.Handle("/img/", http.StripPrefix("/img", http.FileServer(http.Dir("/usr/img"))))
 	err := http.ListenAndServe(":80", nil)
